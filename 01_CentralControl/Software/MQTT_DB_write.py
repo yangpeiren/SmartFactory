@@ -17,7 +17,7 @@
 
 # This shows a simple example of an MQTT subscriber.
 
-import context  # Ensures paho is in PYTHONPATH
+#import context  # Ensures paho is in PYTHONPATH
 import paho.mqtt.client as mqtt
 from Web_view import db, FTS
 
@@ -32,8 +32,9 @@ def on_message(mqttc, obj, msg):
     global counter
     counter += 1
     print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
-    content = msg.payload.split('#')
-    data_item = FTS(*content)
+    content = str(msg.payload).split('#')
+    print(type(content),content)
+    data_item = FTS(**content)
     db.session.add(data_item)
     if counter == 10:
         db.session.commit()
@@ -63,10 +64,10 @@ mqttc.on_subscribe = on_subscribe
 # Uncomment to enable debug messages
 # mqttc.on_log = on_log
 # TODO: change here the server address before use
-mqttc.connect("m2m.eclipse.org", 1883, 60)
+mqttc.connect("10.10.2.2",1883, 60)
 # TODO: change here the topic before use
 mqttc.subscribe("$SYS/#", 0)
-
+mqttc.subscribe("smartfactory/#",0)
 db.create_all()
 
 mqttc.loop_forever()
