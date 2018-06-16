@@ -5,6 +5,28 @@ from email.mime.text import MIMEText
 import datetime
 import time
 import socket
+import os
+import threading
+import re
+import csv
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
+
+driver = webdriver.PhantomJS(executable_path='/usr/lib/chromium-browser/chromium-browser')
+driver.get("https://10.1.254.5")
+bsObj = BeautifulSoup(driver.page_source,'html.parser')
+job_infos = bsObj.find_all('article')
+
+driver.find_element_by_id("username").send_keys('robodev')
+driver.find_element_by_id("loginbtn").submit()
 
 while True:
     try:
