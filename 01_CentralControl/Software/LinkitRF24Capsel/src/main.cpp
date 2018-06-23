@@ -33,6 +33,9 @@ LinkitRF24 linkit_client;
 
 char *clientID = {"arduinoClient"};
 
+/**
+For any topic.payload arriving the arduino via rf24->PubSubClient this method is invoked
+*/
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -48,21 +51,27 @@ void setup()
 Serial.begin(115200);
 Serial.println("Before linkit setup");
 linkit_client.setup(callback,clientID);
+
 Serial.println("After linkit setup");
 
-while(!linkit_client.meshBegins()){
-  delay(100);
-  Serial.println("Failed");
-}
-   Serial.println("OK, Arduino-Setup done");
+//ersetzt in linkiit_client.setup(–,–) line 23
+// while(!linkit_client.meshBegins()){
+//   delay(100);
+//   Serial.println("Failed");
+// }
+//    Serial.println("OK, Arduino-Setup done");
 }
 
 uint32_t mesh_timer = 0;
 
+time_t timeinmillis = millis();
 void loop()
 {
+
+
+//Augelaget in linkit_client.setup(_,_)
 //   if(millis()-mesh_timer > 2000 && client.connected()){ //Every 30 seconds, test mesh connectivity
-Serial.print("Arduino Loop");
+// Serial.print("Arduino Loop");
 //     //time_t n = now();
 //     // char buff[20];
 //     // strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&n));
@@ -75,18 +84,20 @@ Serial.print("Arduino Loop");
 //      }
 //   }
 //   if (!client.connected()) {
-if(!linkit_client.mqttConnected())
-    Serial.print("Attempting MQTT connection...");
+// if(!linkit_client.mqttConnected())
+//     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
     //if(client.connect(clientID))
-    if (linkit_client.connectMqtt()) {
+    if (linkit_client.mqttConnected() ) {
+if (millis() - timeinmillis>=2000){
       Serial.println("connected");
        // Once connected, publish an announcement...
 //       client.publish("smartfactory/fts","hello world");
       linkit_client.publish("smartfactory/fts","hello world");
        // ... and resubscribe
 //       client.subscribe("inTopic");
-      linkit_client.subscribe("inTopic");
+      timeinmillis = millis();
+    }
     } else {
       Serial.print("failed, rc=");
       // Serial.print(client.state());
@@ -94,8 +105,10 @@ if(!linkit_client.mqttConnected())
       Serial.println(" try in in 2 seconds");
       // Wait 2 seconds before retrying
       delay(2000);
+      linkit_client.buildConnection();
     }
 //   }
 // client.loop();
-linkit_client.clientLoop();
+//has to be invoked to check for incoming messages
+ linkit_client.clientLoop();
 }

@@ -21,6 +21,7 @@ public:
   void subscribe(const char*);
   int clientState();
   bool clientLoop();
+  bool buildConnection();
 };
 
 #endif
